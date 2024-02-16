@@ -1,6 +1,7 @@
 streamlit
 openai
-pdfplumber
 langchain
 chromadb
 PyPDF2
+sentence_transformers
+docarray
