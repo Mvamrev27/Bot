@@ -1,8 +1,5 @@
 streamlit
-openai
 langchain
-chromadb
+transformers
+sentence-transformers
 PyPDF2
-sentence_transformers
-docarray
-pydantic
