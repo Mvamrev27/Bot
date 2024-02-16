@@ -5,3 +5,4 @@ chromadb
 PyPDF2
 sentence_transformers
 docarray
+pydantic
