@@ -1,17 +1,15 @@
 import streamlit as st
 import pdfplumber
 from langchain.llms import OpenAI as LangChainOpenAI
-from langchain.chains import TextRetrievalChain
-
-# Use Streamlit Secrets to access the OpenAI API key
-openai_api_key = st.secrets["openai_api_key"]
+from langchain.chains import LLMChain
+from langchain.prompts import ChatPromptTemplate
 
 # Function to extract text from PDF
 def extract_text_from_pdf(pdf_file):
     with pdfplumber.open(pdf_file) as pdf:
         text = ''
         for page in pdf.pages:
-            text += page.extract_text() + " "
+            text += page.extract_text() + "\n"
     return text
 
 # Streamlit application UI
@@ -26,15 +24,24 @@ if pdf_file is not None:
     question = st.text_input("What's your question?")
 
     if st.button("Answer"):
-        # Initialize LangChain OpenAI model with the API key from Streamlit Secrets
-        llm = LangChainOpenAI(openai_api_key=openai_api_key)
-
-        # Create a Text Retrieval Chain
-        retrieval_chain = TextRetrievalChain(document=document_text, llm=llm)
-
-        # Run the chain to get the answer
-        answer = retrieval_chain.run(question)
+        # Use Streamlit Secrets to securely use OpenAI API key
+        openai_api_key = st.secrets["openai_api_key"]
         
+        # Initialize LangChain's OpenAI model
+        llm = LangChainOpenAI(api_key=openai_api_key)
+        
+        # Set up the prompt template
+        prompt_template = ChatPromptTemplate.from_messages([
+            ("document", document_text),
+            ("question", question)
+        ])
+        
+        # Create an LLMChain for question answering
+        chain = LLMChain(llm=llm, prompt=prompt_template)
+
+        # Generate an answer based on the document text and the user's question
+        answer = chain.run()
+
         st.write("Answer:", answer)
 else:
     st.write("Please upload a PDF file.")
