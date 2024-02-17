@@ -2,12 +2,10 @@ import streamlit as st
 import openai
 from langchain.llms import OpenAI
 from langchain.vectorstores import FAISS
+from langchain.vectorstores.base import VectorStore
 from langchain.document_loaders import DirectoryLoader
 from langchain.chains.question_answering import VectorDBQA
 import PyPDF2
-
-# Set your OpenAI API key
-openai.api_key = "YOUR_OPENAI_API_KEY"
 
 def create_index(pdf_dir):
     """Creates a FAISS index from PDF documents."""
@@ -27,12 +25,17 @@ def create_index(pdf_dir):
 
 def answer_query(query, vectorstore):
     """Uses VectorDBQA to answer questions based on the indexed documents."""
+    if not isinstance(vectorstore, VectorStore): 
+        raise ValueError("vectorstore must be a langchain VectorStore")
     chain = VectorDBQA.from_llm_and_vectorstore(OpenAI(temperature=0), vectorstore)
     response = chain.run(query)
     return response
 
 # Streamlit App Design
 st.title("RAG Streamlit OpenAI Bot with PDF Upload")
+
+# Get OpenAI Key from Streamlit Secrets
+openai.api_key = st.secrets["openai_api_key"]
 
 # File Uploader
 uploaded_files = st.file_uploader("Upload PDF documents", type="pdf", accept_multiple_files=True)
@@ -47,5 +50,3 @@ if uploaded_files:
     if user_query:
         answer = answer_query(user_query, vectorstore)
         st.write("Answer:", answer)
-
-# Note: Replace 'YOUR_OPENAI_API_KEY' with your actual key.
