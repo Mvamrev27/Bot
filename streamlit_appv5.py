@@ -3,7 +3,6 @@ import openai
 from langchain.llms import OpenAI
 from langchain.vectorstores import Chroma
 from langchain.document_loaders import DirectoryLoader
-from langchain.chains.question_answering import ChromaDBQA
 import PyPDF2
 
 def create_index(pdf_dir):
@@ -23,10 +22,24 @@ def create_index(pdf_dir):
     return vectorstore
 
 def answer_query(query, chromadb):
-    """Uses ChromaDBQA to answer questions based on the indexed documents."""
-    chain = ChromaDBQA.from_llm_and_vectorstore(OpenAI(temperature=0), chromadb)
-    response = chain.run(query)
-    return response
+    """Retrieves relevant documents from ChromaDB and uses OpenAI for answer generation."""
+    relevant_docs = chromadb.similarity_search(query) 
+
+    # Construct a text source from relevant documents for OpenAI 
+    source_text = ""
+    for doc in relevant_docs:
+        source_text += doc.page_content + "\n"  
+
+    # Use OpenAI to generate an answer (add more context if needed)  
+    response = openai.Completion.create(
+        engine="text-davinci-003", 
+        prompt=f"Question: {query} \n Documents: {source_text} \n Answer:",
+        max_tokens=256,  # Adjust as needed
+        n=1,
+        stop=None,
+        temperature=0, 
+    )
+    return response.choices[0].text.strip() 
 
 # Streamlit App Design
 st.title("RAG Streamlit OpenAI Bot with PDF Upload")
