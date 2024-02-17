@@ -5,15 +5,16 @@ from langchain.vectorstores import Chroma
 from langchain.document_loaders import DirectoryLoader
 import PyPDF2
 
-def create_index(uploaded_files):  
+def create_index(uploaded_files):
     """Creates a FAISS index from PDF documents."""
     text_docs = []
     for uploaded_file in uploaded_files:  
-        pdf_reader = PyPDF2.PdfReader(uploaded_file)  
-        text = ""
-        for page in range(len(pdf_reader.pages)):
-            text += pdf_reader.pages[page].extract_text() + "\n"
-        text_docs.append(text)
+        with uploaded_file as file_object:  # Open file context
+            pdf_reader = PyPDF2.PdfReader(file_object)  # Use file object 
+            text = ""
+            for page in range(len(pdf_reader.pages)):
+                text += pdf_reader.pages[page].extract_text() + "\n"
+            text_docs.append(text)
 
     loader = DirectoryLoader(text_docs, 1000)  # Adjust chunk size as needed
     docs = loader.load()
@@ -50,7 +51,7 @@ openai.api_key = st.secrets["openai_api_key"]
 uploaded_files = st.file_uploader("Upload PDF documents", type="pdf", accept_multiple_files=True)
 
 if uploaded_files:
-    vectorstore = create_index(uploaded_files)  # Pass the list of uploaded files
+    vectorstore = create_index(uploaded_files)
 
     # Initialize ChromaDB (adjust path as needed)
     chromadb = Chroma.from_documents(vectorstore, collection_name="pdf_documents") 
