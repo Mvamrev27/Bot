@@ -1,10 +1,9 @@
 import streamlit as st
 import openai
 from langchain.llms import OpenAI
-from langchain.vectorstores import FAISS
-from langchain.vectorstores.base import VectorStore
+from langchain.vectorstores import Chroma
 from langchain.document_loaders import DirectoryLoader
-from langchain.chains.question_answering import VectorDBQA
+from langchain.chains.question_answering import ChromaDBQA
 import PyPDF2
 
 def create_index(pdf_dir):
@@ -23,11 +22,9 @@ def create_index(pdf_dir):
     vectorstore = FAISS.from_documents(docs, OpenAIEmbeddings())
     return vectorstore
 
-def answer_query(query, vectorstore):
-    """Uses VectorDBQA to answer questions based on the indexed documents."""
-    if not isinstance(vectorstore, VectorStore): 
-        raise ValueError("vectorstore must be a langchain VectorStore")
-    chain = VectorDBQA.from_llm_and_vectorstore(OpenAI(temperature=0), vectorstore)
+def answer_query(query, chromadb):
+    """Uses ChromaDBQA to answer questions based on the indexed documents."""
+    chain = ChromaDBQA.from_llm_and_vectorstore(OpenAI(temperature=0), chromadb)
     response = chain.run(query)
     return response
 
@@ -42,11 +39,14 @@ uploaded_files = st.file_uploader("Upload PDF documents", type="pdf", accept_mul
 
 if uploaded_files:
     vectorstore = create_index(uploaded_files)
+
+    # Initialize ChromaDB (adjust path as needed)
+    chromadb = Chroma.from_documents(vectorstore, collection_name="pdf_documents") 
     st.success("Documents indexed successfully!")
 
     # Chat Input Area
     user_query = st.text_input("Ask a question about the documents:")
 
     if user_query:
-        answer = answer_query(user_query, vectorstore)
+        answer = answer_query(user_query, chromadb)
         st.write("Answer:", answer)
