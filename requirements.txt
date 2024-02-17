@@ -1,5 +1,5 @@
 streamlit
 openai
-langchain
+langchain==0.0.266 
 pypdf2
-faiss-cpu
+faiss-cpu 
