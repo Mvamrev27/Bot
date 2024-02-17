@@ -9,8 +9,8 @@ def create_index(uploaded_files):
     """Creates a FAISS index from PDF documents."""
     text_docs = []
     for uploaded_file in uploaded_files:  
-        with uploaded_file as file_object:  # Open file context
-            pdf_reader = PyPDF2.PdfReader(file_object)  # Use file object 
+        with uploaded_file as file_object:  
+            pdf_reader = PyPDF2.PdfReader(file_object)  
             text = ""
             for page in range(len(pdf_reader.pages)):
                 text += pdf_reader.pages[page].extract_text() + "\n"
@@ -30,9 +30,9 @@ def answer_query(query, chromadb):
     for doc in relevant_docs:
         source_text += doc.page_content + "\n"  
 
-    # Use OpenAI to generate an answer (add more context if needed)  
+    # Use OpenAI to generate an answer, specifying GPT-3.5 Turbo
     response = openai.Completion.create(
-        engine="text-davinci-003", 
+        engine="gpt-3.5-turbo",  # Use gpt-3.5-turbo model
         prompt=f"Question: {query} \n Documents: {source_text} \n Answer:",
         max_tokens=256,  # Adjust as needed
         n=1,
