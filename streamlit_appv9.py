@@ -18,10 +18,10 @@ def configure_retriever(uploaded_files):
   temp_dir = tempfile.TemporaryDirectory()
   docs = []
   for file in uploaded_files:
-    temp_filepath = os.path.join(temp_dir.name,file.name)
+    temp_filepath = os.path.join(temp_dir.name, file.name)
     with open(temp_filepath, "wb") as f:
       f.write(file.getbuffer())
-    loader = PyPDFLoader(filepath=temp_filepath)
+    loader = PyPDFLoader(temp_filepath)  # Potential area to check with LangChain docs
     docs.extend(loader.load())
   text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
   splits = text_splitter.split_documents(docs)
@@ -57,4 +57,4 @@ if user_query:
   msgs.add_human_message(user_query)
   response = qa_chain.run(user_query)
   msgs.add_ai_message(response)
-  st.experimental_rerun() 
+  st.experimental_rerun()
