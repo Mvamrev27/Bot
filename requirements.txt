@@ -1,6 +1,7 @@
 streamlit
 openai
-langchain==0.0.266
+langchain
 pypdf2
-chromadb 
 faiss-cpu
+pyOpenSSL
+transformers
