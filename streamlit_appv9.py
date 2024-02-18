@@ -18,7 +18,7 @@ def configure_retriever(uploaded_files):
   temp_dir = tempfile.TemporaryDirectory()
   docs = []
   for file in uploaded_files:
-    temp_filepath = os.path.join(temp_dir.name, file.name)
+    temp_filepath = os.path.join(temp_dir.name,file.name)
     with open(temp_filepath, "wb") as f:
       f.write(file.getbuffer())
     loader = PyPDFLoader(filepath=temp_filepath)
