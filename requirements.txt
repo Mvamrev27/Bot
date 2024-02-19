@@ -6,3 +6,4 @@ faiss-cpu
 pyOpenSSL
 transformers
 sentence-transformers
+"langchain[docarray]"
