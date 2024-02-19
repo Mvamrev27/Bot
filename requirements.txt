@@ -5,3 +5,4 @@ pypdf
 faiss-cpu
 pyOpenSSL
 transformers
+sentence-transformers
