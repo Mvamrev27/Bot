@@ -1,7 +1,7 @@
 streamlit
 openai
 langchain
-pypdf2
+pypdf
 faiss-cpu
 pyOpenSSL
 transformers
