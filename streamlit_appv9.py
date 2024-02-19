@@ -13,21 +13,20 @@ from langchain.chains import ConversationalRetrievalChain
 st.set_page_config(page_title="LangChain Bot", page_icon=":earth_asia:")
 st.title(":earth_asia: LangChain Bot")
 
-@st.experimental_singleton
+@st.cache_resource(ttl="1h")
 def configure_retriever(uploaded_files):
   temp_dir = tempfile.TemporaryDirectory()
-  docs = []
   for file in uploaded_files:
     temp_filepath = os.path.join(temp_dir.name, file.name)
     with open(temp_filepath, "wb") as f:
-      f.write(file.getbuffer())
+      f.write(file.getvalue())
     loader = PyPDFLoader(temp_filepath)  # Potential area to check with LangChain docs
-    docs.extend(loader.load())
-  text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
-  splits = text_splitter.split_documents(docs)
+    documents = loader.load()
+  text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+  splits = text_splitter.split_documents(documents)
   embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
   vectordb = DocArrayInMemorySearch.from_documents(splits, embeddings)
-  retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={"k": 2, "fetch_k": 4})
+  retriever = vectordb.as_retriever(search_type="similarity", search_kwargs={"k": 2, "fetch_k": 4})
   return retriever
 
 uploaded_files = st.file_uploader("Upload PDF files", type="pdf", accept_multiple_files=True)
