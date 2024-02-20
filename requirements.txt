@@ -7,3 +7,4 @@ pyOpenSSL
 transformers
 sentence-transformers
 pydantic==1.10.9
+"langchain[docarray]"
