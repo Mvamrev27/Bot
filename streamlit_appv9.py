@@ -35,7 +35,7 @@ if uploaded_files:
 else:
   st.stop()
 
-openai_api_key = os.environ.get("OPENAI_API_KEY")
+openai_api_key = st.secrets["OPENAI_API_KEY"]
 if not openai_api_key:
   st.error("Please set the OPENAI_API_KEY environment variable in your Streamlit Cloud settings.")
   st.stop()
