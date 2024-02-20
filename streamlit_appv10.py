@@ -1,52 +1,46 @@
 import streamlit as st
 import nest_asyncio
 from pathlib import Path
-from llama_index import download_loader, VectorStoreIndex, download_llama_pack
+# Assuming correct import paths based on available documentation or library structure
+from llama_hub.file.unstructured import UnstructuredReader
 from llama_index.llms import OpenAI
 from llama_index.text_splitter import SentenceSplitter
-from llama_hub.file.unstructured import UnstructuredReader
+# Correcting the import statement according to available functions or classes
+# from llama_index import necessary_function_or_class
 
 # Apply necessary to run async code
 nest_asyncio.apply()
 
 # Initialize Streamlit app
-st.title('LLaMA Document Query App')
+st.title('Document Query with LLaMA')
+
+# Streamlit Secrets for API Key
+openai_api_key = st.secrets["OPENAI_API_KEY"]
 
 # File Uploader
 uploaded_file = st.file_uploader("Choose a PDF file", type=['pdf'])
 if uploaded_file is not None:
-    file_path = Path(uploaded_file.name)
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+    # Processing the file
+    try:
+        file_path = Path(uploaded_file.name)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
 
-    # Load the PDF document using the chosen method
-    documents_method = st.radio("Choose the document loading method:", ('LLaMA Index', 'LLaMA Hub'))
-
-    if documents_method == 'LLaMA Index':
-        PDFReader = download_loader("PDFReader")
-        loader = PDFReader()
-        documents = loader.load_data(file=file_path)
-    else:
+        # Assuming LLaMA Hub's UnstructuredReader can handle PDF documents directly
         documents = UnstructuredReader().load_data(file_path)
 
-    # Download and initialize the DenseXRetrievalPack
-    DenseXRetrievalPack = download_llama_pack("DenseXRetrievalPack", "./dense_pack")
+        # Example of setting up a query with OpenAI (adjust according to actual API capabilities)
+        query_llm = OpenAI(api_key=openai_api_key, model="gpt-3.5-turbo", max_tokens=256)
 
-    openai_api_key = st.secrets["OPENAI_API_KEY"]
-    dense_pack = DenseXRetrievalPack(
-      documents,
-      proposition_llm=OpenAI(api_key=openai_api_key, model="gpt-3.5-turbo", max_tokens=750),
-      query_llm=OpenAI(api_key=openai_api_key, model="gpt-3.5-turbo", max_tokens=256),
-      text_splitter=SentenceSplitter(chunk_size=1024)
-    )
-    dense_query_engine = dense_pack.query_engine
+        # Placeholder for processing documents and setting up a query engine
+        # This section needs to be adjusted based on actual capabilities and API usage of llama_index and llama_hub
 
-    # Query Engine based on VectorStoreIndex (optional, demonstrating alternative)
-    base_index = VectorStoreIndex.from_documents(documents)
-    base_query_engine = base_index.as_query_engine()
-
-    # User input for query
-    query = st.text_input("Enter your query:")
-    if query:
-        response = dense_query_engine.query(query)
-        st.write(response.response)
+        # Example of handling a query (adjust according to your setup)
+        query = st.text_input("Enter your query:")
+        if query:
+            # Placeholder for querying documents
+            # Adjust this part with actual document querying logic
+            response = "Query response here"  # Placeholder response
+            st.write(response)
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
